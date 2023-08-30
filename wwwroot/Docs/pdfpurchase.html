@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        table {
+            font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+            font-size: 20px;
+            text-align: left;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th {
+            font-size: 20px;
+            font-weight: normal;
+            padding: 8px;
+            background: #b9c9fe;
+            border-top: 4px solid #aabcfe;
+            border-bottom: 1px solid #fff;
+            color: #039;
+        }
+
+        td {
+            padding: 8px;
+            background: #e8edff;
+            border-bottom: 1px solid #fff;
+            color: #669;
+            border-top: 1px solid transparent;
+        }
+    </style>
+</head>
+<body>
+     <h2>Hi {user} on this report you will see all the purchases you have made.</h2> <h3>Date: {date} </h3> <table> <tr> <th>Product Name</th> <th>Product Price</th> <th>Date</th> <th>Product Seller</th> </tr> <tr> {table} </tr> <tr> <th>Total</th> <td> {total} </td> </tr> </table>
+</body>
+</html>

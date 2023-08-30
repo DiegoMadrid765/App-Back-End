@@ -1,0 +1,71 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.log
+*.vscode
+*.vs
+*.suo
+*.user
+*.bak
+*.cache
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+*.ncb
+*.sdf
+*.sln.docstates
+
+# User-specific files and folders #
+####################################
+.idea/
+.vscode/
+bin/
+obj/
+TestResults/
+_ReSharper.*
+[Nn]ode_modules/
+[Tt]emp/
+[Vv]iew[Vv]Caches/
+*.userprefs
+
+# Dependency directories #
+##########################
+packages/
+node_modules/
+bower_components/
+
+# Visual Studio .gitignore #
+###########################
+.vscode/
+.vscode/*.json
+.vscode/*.code-snippets
+
+# Windows image file caches #
+##########################
+Thumbs.db
+ehthumbs.db
+
+# Folder config file #
+######################
+Desktop.ini
+
+# Recycle Bin used on file shares #
+####################################
+$RECYCLE.BIN/
+
+# Windows Installer files #
+###########################
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts #
+#####################
+*.lnk
