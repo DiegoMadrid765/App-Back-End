@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <style>
+        table {
+            width: 100%;
+            
+        }
+
+        th, td {
+            border: 1px solid #000;
+            border-collapse: collapse;
+            padding: 0.3em;
+        }
+    </style>
+
+    <p>Date: {date} </p>
+    <h1>Hello {names} here are all the purchases tou have made so far.</h1>
+
+    <table>
+        <thead>
+            <tr>
+
+                <td><b>Product Name</b></td>
+                <td><b>Product Price</b></td>
+                <td><b>Date</b></td>
+                <td><b>Product Seller</b></td>
+
+            </tr>
+        </thead>
+
+
+        <tbody>
+            <tr>
+
+                {purchases}
+
+            </tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td> <b>Total</b> </td>
+                <td> {total} </td>
+            </tr>
+        </tfoot>
+
+    </table>
+
+</body>
+</html>

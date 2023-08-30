@@ -26,8 +26,8 @@ namespace Back_End.Utils
             var token = new JwtSecurityToken(   
                 issuer: Issuer,
                 audience: Audience,
-                claims,
-                expires: DateTime.Now.AddHours(1),
+                claims:claims,
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
                 );
 

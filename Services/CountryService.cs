@@ -23,5 +23,10 @@ namespace Back_End.Services
         {
             return await aplicationDbContext.Cities.Where(x=>x.countryCode.Equals(code)&&x.name.Contains(name)).ToListAsync();
         }
+
+        public async Task<List<City>> getCitiesByCode(string code)
+        {
+            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code)).ToListAsync();
+        }
     }
 }

@@ -27,11 +27,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
-
 builder.Services.AddHttpContextAccessor();
-    
 builder.Services.AddCors(options => options.AddPolicy("App", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                     options.TokenValidationParameters = new TokenValidationParameters

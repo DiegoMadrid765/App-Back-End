@@ -179,7 +179,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var identity = HttpContext.User.Identity as ClaimsIdentity;
+                var identity = HttpContext.User.Identity as ClaimsIdentity; 
                 var userid = JwtConfigurator.getTokenIdUser(identity);
 
                 var user = await userService.GetUser(userid);

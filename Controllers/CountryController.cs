@@ -30,12 +30,26 @@ namespace Back_End.Controllers
 
 
         [HttpGet]
-        [Route("getCitiesByCode")]
-        public async Task<IActionResult> getCitiesByCode(string code,string name)
+        [Route("getCitiesByCodeAndName")]
+        public async Task<IActionResult> getCitiesByCodeAndName(string code,string name)
         {
             try
             {
                 return Ok(await countryService.getCitiesByCodeAndName(code,name));
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new { error = "error" });
+            }
+        }
+        [HttpGet]
+        [Route("getCitiesByCode")]
+        public async Task<IActionResult> getCitiesByCode(string code)
+        {
+            try
+            {
+                return Ok(await countryService.getCitiesByCode(code));
             }
             catch (Exception)
             {
