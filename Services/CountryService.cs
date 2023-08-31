@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Back_End.Services
 {
-    public class CountryService:ICountryService
+    public class CountryService : ICountryService
     {
         private readonly AplicationDbContext aplicationDbContext;
 
@@ -16,17 +16,18 @@ namespace Back_End.Services
 
         public async Task<List<Country>> getCountries()
         {
-            return await aplicationDbContext.Countries.OrderBy(x=>x.name).ToListAsync();
+            return await aplicationDbContext.Countries.OrderBy(x => x.name).ToListAsync();
         }
 
-        public async Task<List<City>> getCitiesByCodeAndName(string code,string name)
+        public async Task<List<City>> getCitiesByCodeAndName(string code, string name)
         {
-            return await aplicationDbContext.Cities.Where(x=>x.countryCode.Equals(code)&&x.name.Contains(name)).ToListAsync();
+            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code) && x.name.Contains(name)).ToListAsync();
         }
 
         public async Task<List<City>> getCitiesByCode(string code)
         {
-            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code)).ToListAsync();
+            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code)).Select(x => new City { name = x.name, Id=x.Id}).ToListAsync();
+            
         }
     }
 }

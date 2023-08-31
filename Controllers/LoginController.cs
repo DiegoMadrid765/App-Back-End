@@ -87,8 +87,7 @@ namespace Back_End.Controllers
                    await mailService.SendEmailForgotAutorization(user,activateduser.url);
                     await userService.AddActivatedAccount(activateduser);
                     return Ok(new { messaje = "mail sent" });
-                }
-                else
+                }  
                 {
                     return BadRequest(new {error="error" });
                 }

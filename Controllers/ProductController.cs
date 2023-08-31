@@ -3,9 +3,11 @@ using Back_End.IServices;
 using Back_End.Models;
 using Back_End.Utils;
 using DinkToPdf;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
 
 namespace Back_End.Controllers
@@ -20,18 +22,16 @@ namespace Back_End.Controllers
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IUserService userService;
         private readonly IMailService mailService;
+        private readonly IConverter converter;
 
-
-
-
-        public ProductController(IProductService productService, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, IUserService userService, IMailService mailService)
+        public ProductController(IProductService productService, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, IUserService userService, IMailService mailService,IConverter converter)
         {
             this.productService = productService;
             this.webHostEnvironment = webHostEnvironment;
             this.httpContextAccessor = httpContextAccessor;
             this.userService = userService;
             this.mailService = mailService;
-
+            this.converter = converter;
         }
 
         [HttpPost]
@@ -173,26 +173,7 @@ namespace Back_End.Controllers
 
         }
 
-        [HttpGet]
-        [Route("GetPurchasesForPdf")]
-        public async Task<IActionResult> GetPurchasesForPdf()
-        {
-            try
-            {
-                var identity = HttpContext.User.Identity as ClaimsIdentity; 
-                var userid = JwtConfigurator.getTokenIdUser(identity);
-
-                var user = await userService.GetUser(userid);
-                var purchases = await productService.GetPurchases(userid);
-                await mailService.SendEmailPurchases(purchases, user);
-                return Ok(new { message = "emailsent" });
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(new { error = e.Message });
-            }
-        }
+        
 
         [HttpGet]
         [Route("GetProductDetails")]
@@ -255,10 +236,37 @@ namespace Back_End.Controllers
             try
             {
 
+                var stringhelper = new StringHelper();
+                string htmlContent = System.IO.File.ReadAllText("Docs/Purchases.html");
+                var currentdate = DateTime.Now;
+                string date = $"{currentdate.Day}-{currentdate.Month}-{currentdate.Year}";
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 var userid = JwtConfigurator.getTokenIdUser(identity);
                 var user = await userService.GetUser(userid);
-                string htmlContent = $"<h1>Hello, {user.names} {user.lastnames} this is HTML content in PDF!</h1>";
+                string names = $"{stringhelper.GetfirstLetterUpper(user.names)} {stringhelper.GetfirstLetterUpper(user.lastnames)}";
+                string purchasescontent = string.Empty;
+
+                var purchases = await productService.GetPurchases(userid);
+                decimal total = 0;
+
+                //List<ObjectSettings> objectSettingslist = new List<ObjectSettings>();
+
+                foreach (var purchase in purchases)
+                {
+                    purchasescontent += $"<tr><td>{stringhelper.GetfirstLetterUpper(purchase.product.name)}</td>";
+                    purchasescontent += $"<td>{purchase.product.price}</td>";
+                    purchasescontent += $"<td>{purchase.DatePurchase.Day}-{purchase.DatePurchase.Month}-{purchase.DatePurchase.Year}</td>";
+                    purchasescontent += $"<td>{stringhelper.GetfirstLetterUpper(purchase.product.user.names)} {stringhelper.GetfirstLetterUpper(purchase.product.user.lastnames)}</td></tr>";
+                    total += purchase.product.price;
+
+
+                }
+
+                string finalhtmlcontent = htmlContent
+                    .Replace("{date}", date)
+                    .Replace("{purchases}", purchasescontent)
+                    .Replace("{names}", names)
+                    .Replace("{total}", total.ToString());
                 GlobalSettings globalSettings = new GlobalSettings
                 {
                     PaperSize = PaperKind.A4,
@@ -268,9 +276,9 @@ namespace Back_End.Controllers
                 ObjectSettings objectSettings = new ObjectSettings
                 {
                     PagesCount = true,
-                    HtmlContent = htmlContent,
+                    HtmlContent = finalhtmlcontent,
                     WebSettings = { DefaultEncoding = "utf-8" },
-                    HeaderSettings = { FontSize = 9, Right = "Page [page] of [toPage]", Line = true, Spacing = 2.812 }
+                    HeaderSettings = { FontSize = 9, Right = "Página [page] de [toPage]", Line = true, Spacing = 2.812 }
                 };
 
                 var pdf = new HtmlToPdfDocument()
@@ -278,15 +286,15 @@ namespace Back_End.Controllers
                     GlobalSettings = globalSettings,
                     Objects = { objectSettings }
                 };
-                
-                var converter = new BasicConverter(new PdfTools());
-               byte[] pdfBytes = converter.Convert(pdf);
-               
-                return File(pdfBytes, "application/pdf", $"data_{user.names}{new DateTime().Second}.pdf");
+
+
+                byte[] pdfBytes = converter.Convert(pdf);
+
+                return File(pdfBytes, "application/pdf", $"data_{new DateTime().Second}.pdf");
             }
             catch (Exception)
             {
-                return BadRequest(new { error = "error" });
+                return BadRequest(new { title = "error", description = "It has happened an error" });
             }
 
         }

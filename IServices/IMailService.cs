@@ -6,6 +6,6 @@ namespace Back_End.IServices
     {
        Task SendEmailAutorization(User user, string url);
         Task SendEmailForgotAutorization(User user, string url);
-        Task SendEmailPurchases(List<Purchase> PurchaseList, User user);
+       
     }
 }
