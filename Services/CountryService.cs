@@ -26,7 +26,7 @@ namespace Back_End.Services
 
         public async Task<List<City>> getCitiesByCode(string code)
         {
-            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code)).Select(x => new City { name = x.name, Id=x.Id}).ToListAsync();
+            return await aplicationDbContext.Cities.Where(x => x.countryCode.Equals(code)).Select(x => new City { name = x.name, Id=x.Id}).OrderBy(x=>x.name).ToListAsync();
             
         }
     }

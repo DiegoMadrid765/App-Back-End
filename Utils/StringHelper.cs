@@ -8,7 +8,7 @@ namespace Back_End.Utils
         {
             if (text.IsNullOrEmpty())
             {
-                return "";
+                return string.Empty;
             }
            return char.ToUpper(text[0]) + text.Substring(1).ToLower();
         }

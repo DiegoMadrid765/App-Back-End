@@ -7,9 +7,7 @@ using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Security.Claims;
-
 namespace Back_End.Controllers
 {
     [ApiController]
@@ -24,7 +22,7 @@ namespace Back_End.Controllers
         private readonly IMailService mailService;
         private readonly IConverter converter;
 
-        public ProductController(IProductService productService, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, IUserService userService, IMailService mailService,IConverter converter)
+        public ProductController(IProductService productService, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, IUserService userService, IMailService mailService, IConverter converter)
         {
             this.productService = productService;
             this.webHostEnvironment = webHostEnvironment;
@@ -173,7 +171,7 @@ namespace Back_End.Controllers
 
         }
 
-        
+
 
         [HttpGet]
         [Route("GetProductDetails")]
@@ -249,7 +247,7 @@ namespace Back_End.Controllers
                 var purchases = await productService.GetPurchases(userid);
                 decimal total = 0;
 
-                //List<ObjectSettings> objectSettingslist = new List<ObjectSettings>();
+                string imageQR = new QRHelper().GenerateQR("hola como estas");
 
                 foreach (var purchase in purchases)
                 {
@@ -266,6 +264,7 @@ namespace Back_End.Controllers
                     .Replace("{date}", date)
                     .Replace("{purchases}", purchasescontent)
                     .Replace("{names}", names)
+                    .Replace("{imageqr}", imageQR)
                     .Replace("{total}", total.ToString());
                 GlobalSettings globalSettings = new GlobalSettings
                 {
@@ -277,8 +276,8 @@ namespace Back_End.Controllers
                 {
                     PagesCount = true,
                     HtmlContent = finalhtmlcontent,
-                    WebSettings = { DefaultEncoding = "utf-8" },
-                    HeaderSettings = { FontSize = 9, Right = "Página [page] de [toPage]", Line = true, Spacing = 2.812 }
+                    WebSettings = { DefaultEncoding = "utf-8" }
+                    
                 };
 
                 var pdf = new HtmlToPdfDocument()
