@@ -237,6 +237,7 @@ namespace Back_End.Controllers
                 var stringhelper = new StringHelper();
                 string htmlContent = System.IO.File.ReadAllText("Docs/Purchases.html");
                 var currentdate = DateTime.Now;
+                
                 string date = $"{currentdate.Day}-{currentdate.Month}-{currentdate.Year}";
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 var userid = JwtConfigurator.getTokenIdUser(identity);
