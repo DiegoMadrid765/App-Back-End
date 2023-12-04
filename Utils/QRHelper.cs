@@ -17,7 +17,7 @@ namespace Back_End.Utils
             using var ms = new MemoryStream();
             ms.Write(bitMap);
             byte[] byteImage = ms.ToArray();
-            return "data:image/png;base64,"+Convert.ToBase64String(byteImage);
+            return $"data:image/png;base64,{Convert.ToBase64String(byteImage)}";
         }
     }
 }

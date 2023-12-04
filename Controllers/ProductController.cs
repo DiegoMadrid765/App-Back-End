@@ -6,6 +6,7 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 namespace Back_End.Controllers
@@ -236,6 +237,7 @@ namespace Back_End.Controllers
 
                 var stringhelper = new StringHelper();
                 string htmlContent = System.IO.File.ReadAllText("Docs/Purchases.html");
+                string secondhtmlcontent = System.IO.File.ReadAllText("Docs/secondpurchases.html");
                 var currentdate = DateTime.Now;
                 
                 string date = $"{currentdate.Day}-{currentdate.Month}-{currentdate.Year}";
@@ -244,48 +246,119 @@ namespace Back_End.Controllers
                 var user = await userService.GetUser(userid);
                 string names = $"{stringhelper.GetfirstLetterUpper(user.names)} {stringhelper.GetfirstLetterUpper(user.lastnames)}";
                 string purchasescontent = string.Empty;
-
+                string secondpurchasecontent = string.Empty;
                 var purchases = await productService.GetPurchases(userid);
-                decimal total = 0;
 
-                string imageQR = new QRHelper().GenerateQR("hola como estas");
 
+                int counter = 1;
+                bool firstpage = true;
+                var objectSettings = new List<ObjectSettings>();
+                bool inserted = false;
                 foreach (var purchase in purchases)
                 {
-                    purchasescontent += $"<tr><td>{stringhelper.GetfirstLetterUpper(purchase.product.name)}</td>";
-                    purchasescontent += $"<td>{purchase.product.price}</td>";
-                    purchasescontent += $"<td>{purchase.DatePurchase.Day}-{purchase.DatePurchase.Month}-{purchase.DatePurchase.Year}</td>";
-                    purchasescontent += $"<td>{stringhelper.GetfirstLetterUpper(purchase.product.user.names)} {stringhelper.GetfirstLetterUpper(purchase.product.user.lastnames)}</td></tr>";
-                    total += purchase.product.price;
+                    if (counter <= 34 && firstpage)
+                    {
 
 
+                        purchasescontent += $"<tr><td>{stringhelper.GetfirstLetterUpper(purchase.product.name)}</td>";
+                        purchasescontent += $"<td>{purchase.product.price.ToString("N", System.Globalization.CultureInfo.CurrentCulture)}</td>";
+                        purchasescontent += $"<td>{purchase.DatePurchase.Day}-{purchase.DatePurchase.Month}-{purchase.DatePurchase.Year}</td>";
+                        purchasescontent += $"<td>{stringhelper.GetfirstLetterUpper(purchase.product.user.names)} {stringhelper.GetfirstLetterUpper(purchase.product.user.lastnames)}</td></tr>";
+                        if (purchases.Count <= 34 && purchase == purchases.Last())
+                        {
+                            var objectSetting = new ObjectSettings
+                            {
+                                PagesCount = true,
+                                HtmlContent = htmlContent.Replace("{date}", date)
+                              .Replace("{purchases}", purchasescontent)
+                              .Replace("{names}", names)
+                              .Replace("{total}", purchases.Sum(x => x.product.price).ToString("N", System.Globalization.CultureInfo.CurrentCulture)),
+                                WebSettings = { DefaultEncoding = "utf-8" }
+
+                            };
+                            objectSettings.Add(objectSetting);
+                            firstpage = false;
+                        }
+                        if (counter == 34)
+                        {
+                            var objectSetting = new ObjectSettings
+                            {
+                                PagesCount = true,
+                                HtmlContent = htmlContent.Replace("{date}", date)
+                                .Replace("{purchases}", purchasescontent)
+                                .Replace("{names}", names)
+                                .Replace("{total}", purchases.Sum(x => x.product.price).ToString("N", System.Globalization.CultureInfo.CurrentCulture)),
+                                WebSettings = { DefaultEncoding = "utf-8" }
+
+                            };
+                            objectSettings.Add(objectSetting);
+                            firstpage = false;
+                        }
+
+
+                    }
+                    else
+                    {
+                        if (counter % 40 == 0)
+                        {
+                            var objectSetting = new ObjectSettings
+                            {
+                                PagesCount = true,
+                                HtmlContent = secondhtmlcontent.Replace("{purchases}", secondpurchasecontent),
+                                WebSettings = { DefaultEncoding = "utf-8" }
+
+                            };
+                            objectSettings.Add(objectSetting);
+                            secondpurchasecontent = string.Empty;
+                            secondpurchasecontent += $"<tr><td>{stringhelper.GetfirstLetterUpper(purchase.product.name)}</td>";
+                            secondpurchasecontent += $"<td>{purchase.product.price.ToString("N", System.Globalization.CultureInfo.CurrentCulture)}</td>";
+                            secondpurchasecontent += $"<td>{purchase.DatePurchase.Day}-{purchase.DatePurchase.Month}-{purchase.DatePurchase.Year}</td>";
+                            secondpurchasecontent += $"<td>{stringhelper.GetfirstLetterUpper(purchase.product.user.names)} {stringhelper.GetfirstLetterUpper(purchase.product.user.lastnames)}</td></tr>";
+                            inserted = true;
+                        }
+                        else
+                        {
+                            secondpurchasecontent += $"<tr><td>{stringhelper.GetfirstLetterUpper(purchase.product.name)}</td>";
+                            secondpurchasecontent += $"<td>{purchase.product.price.ToString("N", System.Globalization.CultureInfo.CurrentCulture)}</td>";
+                            secondpurchasecontent += $"<td>{purchase.DatePurchase.Day}-{purchase.DatePurchase.Month}-{purchase.DatePurchase.Year}</td>";
+                            secondpurchasecontent += $"<td>{stringhelper.GetfirstLetterUpper(purchase.product.user.names)} {stringhelper.GetfirstLetterUpper(purchase.product.user.lastnames)}</td></tr>";
+                            inserted = false;
+                        }
+
+                    }
+
+                    counter++;
+                }
+                if (!inserted)
+                {
+                    var objectSetting = new ObjectSettings
+                    {
+                        PagesCount = true,
+                        HtmlContent = secondhtmlcontent.Replace("{purchases}", secondpurchasecontent),
+                        WebSettings = { DefaultEncoding = "utf-8" }
+
+                    };
+                    objectSettings.Add(objectSetting);
                 }
 
-                string finalhtmlcontent = htmlContent
-                    .Replace("{date}", date)
-                    .Replace("{purchases}", purchasescontent)
-                    .Replace("{names}", names)
-                    .Replace("{imageqr}", imageQR)
-                    .Replace("{total}", total.ToString());
                 GlobalSettings globalSettings = new GlobalSettings
                 {
                     PaperSize = PaperKind.A4,
                     Orientation = Orientation.Portrait,
+
                 };
 
-                ObjectSettings objectSettings = new ObjectSettings
-                {
-                    PagesCount = true,
-                    HtmlContent = finalhtmlcontent,
-                    WebSettings = { DefaultEncoding = "utf-8" }
-                    
-                };
+
 
                 var pdf = new HtmlToPdfDocument()
                 {
                     GlobalSettings = globalSettings,
-                    Objects = { objectSettings }
+
                 };
+                foreach (var objectsetting in objectSettings)
+                {
+                    pdf.Objects.Add(objectsetting);
+                }
 
 
                 byte[] pdfBytes = converter.Convert(pdf);
