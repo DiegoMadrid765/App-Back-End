@@ -13,7 +13,7 @@ namespace Back_End.Utils
             var qrgenerator = new QRCodeGenerator();
             var qrcodedata = qrgenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
             BitmapByteQRCode bitmapBycode = new BitmapByteQRCode(qrcodedata);
-            var bitMap = bitmapBycode.GetGraphic(5);
+            var bitMap = bitmapBycode.GetGraphic(20);
             using var ms = new MemoryStream();
             ms.Write(bitMap);
             byte[] byteImage = ms.ToArray();

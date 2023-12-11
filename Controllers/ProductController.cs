@@ -78,8 +78,6 @@ namespace Back_End.Controllers
 
                 return BadRequest(new { error = "error" });
             }
-
-
         }
         [HttpGet]
         [Route("Getproducts")]
@@ -124,7 +122,7 @@ namespace Back_End.Controllers
                 var product = await productService.GetProductById(idproduct);
                 if (product == null)
                 {
-                    return BadRequest(new { error = "error" });
+                    return NotFound(new { error = "error" });
                 }
                 if (product.hidden == 0)
                 {
@@ -239,7 +237,7 @@ namespace Back_End.Controllers
                 string htmlContent = System.IO.File.ReadAllText("Docs/Purchases.html");
                 string secondhtmlcontent = System.IO.File.ReadAllText("Docs/secondpurchases.html");
                 var currentdate = DateTime.Now;
-                
+
                 string date = $"{currentdate.Day}-{currentdate.Month}-{currentdate.Year}";
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 var userid = JwtConfigurator.getTokenIdUser(identity);
@@ -329,7 +327,7 @@ namespace Back_End.Controllers
 
                     counter++;
                 }
-                if (!inserted)
+                if (!inserted && purchases.Count >= 34)
                 {
                     var objectSetting = new ObjectSettings
                     {
@@ -359,11 +357,9 @@ namespace Back_End.Controllers
                 {
                     pdf.Objects.Add(objectsetting);
                 }
-
-
                 byte[] pdfBytes = converter.Convert(pdf);
 
-                return File(pdfBytes, "application/pdf", $"data_{new DateTime().Second}.pdf");
+                return File(pdfBytes, "application/pdf");
             }
             catch (Exception)
             {
@@ -371,7 +367,23 @@ namespace Back_End.Controllers
             }
 
         }
+        [HttpGet("DownloadPurchaseQr")]
 
+        public IActionResult DownloadPurchaseQr(string url)
+        {
+            try
+            {
+                string base64qrimage = new QRHelper().GenerateQR(url);
+
+                var imageBytes = Convert.FromBase64String(base64qrimage.Split(",")[1]);
+                return File(imageBytes, "image/png");
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new { title = "error", description = "It has happened an error" });
+            }
+        }
 
     }
 }
