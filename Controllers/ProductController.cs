@@ -22,6 +22,7 @@ namespace Back_End.Controllers
         private readonly IUserService userService;
         private readonly IMailService mailService;
         private readonly IConverter converter;
+        private readonly GuidHelper guidHelper;
 
         public ProductController(IProductService productService, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, IUserService userService, IMailService mailService, IConverter converter)
         {
@@ -31,6 +32,7 @@ namespace Back_End.Controllers
             this.userService = userService;
             this.mailService = mailService;
             this.converter = converter;
+            this.guidHelper = new GuidHelper();
         }
 
         [HttpPost]
@@ -65,6 +67,7 @@ namespace Back_End.Controllers
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 var productregister = new Product();
                 productregister.imageurl = urldb;
+                productregister.url = guidHelper.GetRandomText();
                 productregister.price = decimal.Parse(product.price);
                 productregister.name = product.name;
                 productregister.description = product.description;
@@ -74,7 +77,7 @@ namespace Back_End.Controllers
                 return Ok(new { mesagge = "registered" });
             }
             catch (Exception)
-            {
+            {   
 
                 return BadRequest(new { error = "error" });
             }
@@ -174,17 +177,17 @@ namespace Back_End.Controllers
 
         [HttpGet]
         [Route("GetProductDetails")]
-        public async Task<IActionResult> GetProductDetails(int id)
+        public async Task<IActionResult> GetProductDetails(string url)
         {
             try
             {
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 var userid = JwtConfigurator.getTokenIdUser(identity);
 
-                var product = await productService.GetProductDetails(id, userid);
+                var product = await productService.GetProductDetails(url, userid);
                 if (product == null)
                 {
-                    return BadRequest(new { error = "error" });
+                    return NotFound(new { error = "error" });
                 }
                 else
                 {
@@ -252,6 +255,20 @@ namespace Back_End.Controllers
                 bool firstpage = true;
                 var objectSettings = new List<ObjectSettings>();
                 bool inserted = false;
+                if (purchases.Count == 0)
+                {
+                    var objectSetting = new ObjectSettings
+                    {
+                        PagesCount = true,
+                        HtmlContent = htmlContent.Replace("{date}", date)
+                            .Replace("{purchases}", purchasescontent)
+                            .Replace("{names}", names)
+                            .Replace("{total}", purchases.Sum(x => x.product.price).ToString("N", System.Globalization.CultureInfo.CurrentCulture)),
+                        WebSettings = { DefaultEncoding = "utf-8" }
+
+                    };
+                    objectSettings.Add(objectSetting);
+                }
                 foreach (var purchase in purchases)
                 {
                     if (counter <= 34 && firstpage)
@@ -292,8 +309,6 @@ namespace Back_End.Controllers
                             objectSettings.Add(objectSetting);
                             firstpage = false;
                         }
-
-
                     }
                     else
                     {

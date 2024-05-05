@@ -19,5 +19,7 @@ namespace Back_End.Models
         [Required]
         public string email { get; set; }
         public Address address { get; set; }
+      
     }
 }
+    

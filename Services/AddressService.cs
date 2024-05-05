@@ -19,8 +19,6 @@ namespace Back_End.Services
             aplicationDbContext.Addresses.Add(address);
             await aplicationDbContext.SaveChangesAsync();
  
-        
-        
         }
     }  
 }

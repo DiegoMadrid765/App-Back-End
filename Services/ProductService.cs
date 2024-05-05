@@ -51,9 +51,9 @@ namespace Back_End.Services
             return  await aplicationDbContext.Purchases.Where(x=>x.userId==id).Include(x=>x.user).Include(x=>x.product).ThenInclude(x=>x.user).ToListAsync();
         }
 
-       public async Task<Product> GetProductDetails(int idproduct,int iduser)
+       public async Task<Product> GetProductDetails(string url,int iduser)
         {
-            return await aplicationDbContext.Products.Where(x => x.Id == idproduct && x.userId != iduser).FirstOrDefaultAsync();
+            return await aplicationDbContext.Products.Where(x => x.url.Equals(url) && x.userId != iduser).FirstOrDefaultAsync();
         }
 
 

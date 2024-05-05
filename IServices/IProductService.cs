@@ -11,7 +11,7 @@ namespace Back_End.IServices
         Task RegisterProduct(Product product);
         Task SetHideProduct(Product product);
         Task<List<Purchase>> GetPurchases(int id);
-        Task<Product> GetProductDetails(int idproduct, int iduser);
+        Task<Product> GetProductDetails(string url, int iduser);
         Task<Product> SeeeEditProduct(int idproduct, int iduser);
        
     }

@@ -35,8 +35,8 @@ namespace Back_End.Controllers
                 user.password = BCrypt.Net.BCrypt.HashPassword(user.password);
                 var activateduser = new ActivatedUser();
                 activateduser.activated = 0;
-
-                activateduser.url = Guid.NewGuid().ToString();
+          
+                activateduser.url = new GuidHelper().GetRandomText();
 
                 user = await userService.RegisterUser(user);
                 user.address.userId = user.Id;
