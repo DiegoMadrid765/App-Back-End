@@ -23,6 +23,7 @@ builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IResetPasswordService, ResetPasswordService>();
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options => options.AddPolicy("App", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

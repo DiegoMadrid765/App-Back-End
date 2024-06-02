@@ -2,6 +2,7 @@
 using Back_End.Models;
 using System.Net;
 using System.Net.Mail;
+using static QRCoder.PayloadGenerator;
 namespace Back_End.Utils
 {
     public class MailService:IMailService
@@ -56,9 +57,6 @@ namespace Back_End.Utils
        
         public async Task SendEmailForgotAutorization(User user, string url)
         {
-
-
-
             try
             {
                 var client = new SmtpClient("smtp.gmail.com", 587)
@@ -85,6 +83,37 @@ namespace Back_End.Utils
 
 
 
+            }
+        }
+
+        public async Task<bool> SendEmailForgotPassword(User user, string url)
+        {
+
+            try
+            {
+                var client = new SmtpClient("smtp.gmail.com", 587)
+                {
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(emailfrom, password)
+
+
+                };
+
+                var email = new MailMessage(emailfrom, user.email);
+                email.Subject = "Recovery password";
+                email.Body = $"Hello {user.names} {user.lastnames}! click on this link to reset your password <a href='http://{websitefrontend}/welcome/reset-password/{url}'>Reset password</a>";
+                email.IsBodyHtml = true;
+
+                await client.SendMailAsync(email);
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }

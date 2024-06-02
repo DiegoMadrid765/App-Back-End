@@ -3,6 +3,7 @@ using Back_End.IServices;
 using Back_End.Models;
 using Back_End.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Back_End.Controllers
 {
@@ -14,13 +15,15 @@ namespace Back_End.Controllers
         private readonly IConfiguration configuration;
         private readonly IUserService userService;
         private readonly IMailService mailService;
+        private readonly IResetPasswordService resetPasswordService;
 
-        public LoginController(ILoginService loginService, IConfiguration configuration, IUserService userService ,IMailService mailService)
+        public LoginController(ILoginService loginService, IConfiguration configuration, IUserService userService ,IMailService mailService,IResetPasswordService resetPasswordService)
         {
             this.loginService = loginService;
             this.configuration = configuration;
             this.userService = userService;
             this.mailService = mailService;
+            this.resetPasswordService = resetPasswordService;
         }
 
         [HttpPost]
@@ -98,5 +101,51 @@ namespace Back_End.Controllers
                 return BadRequest(new { error = "error" });
             }
         }
+
+        [HttpGet("sendemailresetpassword")]
+        public async Task<IActionResult> SendEmailResetPassword(string email)
+        {
+            try
+            {
+                if (email.IsNullOrEmpty()) return BadRequest(new { title = "Enter an email", description = "Please, enter an email to continue", type = "error" });
+                email = email.ToLower().Trim();
+
+                var user = await loginService.GetUserbyEmail(email);
+
+                if (user== null) return NotFound(new { title = "Email not found", description = $"The email {email} was not found", type = "error" });
+                var ResetPassword = new ResetPassword()
+                {
+                    Url=Guid .NewGuid().ToString(),
+                    userId = user.Id,
+                };
+               // return Ok(new { title = "E-mail sent", description = "The e-mail has been sent successfully.", type = "success" });
+
+                if (await resetPasswordService.SaveResetPassword(ResetPassword))
+                {
+                   if(await mailService.SendEmailForgotPassword(user, ResetPassword.Url))
+                    {
+                        return Ok(new { title = "E-mail sent", description = "The e-mail has been sent successfully.", type = "success" });
+                    }
+                    else
+                    {
+                        return BadRequest(new { title = "Error", description = "It has happened an error sending the email", type = "error" });
+
+                    }
+                }
+                else
+                {
+                    return BadRequest(new { title = "Error", description = "It has happened an error sending the email", type = "error" });
+
+                }
+               
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new { title = "Error", description = "It has happened an error sending the email", type = "error" });
+            }
+           
+        }
+
     }
 }

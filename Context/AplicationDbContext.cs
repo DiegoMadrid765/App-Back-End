@@ -12,6 +12,7 @@ namespace Back_End.Context
         
         public DbSet<Product> Products { get; set; }
         public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<ResetPassword> ResetPassword { get; set; }
         public AplicationDbContext(DbContextOptions<AplicationDbContext>options):base(options)
         {
            
