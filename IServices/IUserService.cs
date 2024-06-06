@@ -11,7 +11,7 @@ namespace Back_End.IServices
         Task<User> GetUser(int userId);
         Task RegisterUrlActivateUser(ActivatedUser activatedUser);
         Task<User> RegisterUser(User user);
-
+        Task<bool> UpdateUser(User user);
         Task<bool> VerifyUserActivated(int id);
     }
 }

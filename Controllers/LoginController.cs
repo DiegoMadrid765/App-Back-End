@@ -118,7 +118,14 @@ namespace Back_End.Controllers
                     Url=Guid .NewGuid().ToString(),
                     userId = user.Id,
                 };
-               // return Ok(new { title = "E-mail sent", description = "The e-mail has been sent successfully.", type = "success" });
+                var resetPassword = await resetPasswordService.GetResetPasswordByUserId(user.Id);
+                if (resetPassword != null)
+                {
+                    if(!await resetPasswordService.DeleteResetPassword(resetPassword))
+                    {
+                        return BadRequest(new { title = "Error", description = "It has happened an error sending the email", type = "error" });
+                    }
+                }
 
                 if (await resetPasswordService.SaveResetPassword(ResetPassword))
                 {
@@ -145,6 +152,89 @@ namespace Back_End.Controllers
                 return BadRequest(new { title = "Error", description = "It has happened an error sending the email", type = "error" });
             }
            
+        }
+
+        [HttpGet("getresetpassword")]
+
+       public async Task<IActionResult> GetResetPassword(string url)
+        {
+            try
+            {
+                var resetPassword = await resetPasswordService.GetResetPasswordByUrl(url);
+                return resetPassword == null ? NotFound() : Ok();
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("resetpassword")]
+
+        public async Task<IActionResult> ResetPasswrod(ResetPasswordDTO resetPasswordDTO)
+        {
+            try
+            {
+                var resetPassword = await resetPasswordService.GetResetPasswordByUrl(resetPasswordDTO.url);
+                if (resetPassword == null)
+                {
+                    return NotFound(new { Title = "Error", Description = "It has happened an error resetting yout password.", Type = "error" });
+                }
+                if (!resetPasswordDTO.Password.Equals(resetPasswordDTO.ConfirmPassword))
+                {
+                    return BadRequest(new { Title = "Error",Description="Both passwords must be the same.", Type="error"});
+                }
+                var user = await userService.GetUser(resetPassword.userId);
+                if (user == null)
+                {
+                    return NotFound(new { Title = "Error", Description = "It has happened an error resetting yout password.", Type = "error" });
+
+                }
+                if (BCrypt.Net.BCrypt.Verify(resetPasswordDTO.Password, user.password))
+                {
+                    return BadRequest(new { Title = "Error", Description = "You must use a password that you have not used before.", Type = "error" });
+                }
+                    
+               user.password=BCrypt.Net.BCrypt.HashPassword(resetPasswordDTO.Password);
+
+                if (await userService.UpdateUser(user))
+                {
+                    return Ok(new {Title="Password Resetted",Description="Your password has been ressetted successfully",Type="success"});
+                }
+                else
+                {
+                    return BadRequest(new { Title = "Error", Description = "It has happened an error resetting yout password.", type = "error" });
+                }
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new { Title = "Error", Description = "It has happened an error resetting yout password.", type = "error" });
+
+            }
+
+        }
+
+        [HttpDelete("deleteresetpassword")]
+        public async Task<IActionResult> DeleteResetPasswrod(string url)
+        {
+            try
+            {
+                var resetPassword = await resetPasswordService.GetResetPasswordByUrl(url);
+                if (resetPassword == null)
+                {
+                    return NotFound();
+                }
+               await resetPasswordService.DeleteResetPassword(resetPassword);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
     }

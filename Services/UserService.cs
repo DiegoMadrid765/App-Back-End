@@ -24,6 +24,22 @@ namespace Back_End.Services
         }
 
 
+        public async Task<bool> UpdateUser(User user)
+        {
+            try
+            {
+                aplicationDbContext.Update(user);
+                await aplicationDbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+
+               return false;
+            }
+        }
+
+
         public async Task RegisterUrlActivateUser(ActivatedUser activatedUser)
         {
             aplicationDbContext.Add(activatedUser);
@@ -32,14 +48,7 @@ namespace Back_End.Services
 
         public async Task<User> GetUser(int userId)
         {
-            return await aplicationDbContext.Users.Where(x => x.Id == userId).Select(x => new User
-            {
-                names = x.names,
-                lastnames = x.lastnames,
-                email = x.email,
-                birthdate = x.birthdate,
-                gender = x.gender
-            }).FirstOrDefaultAsync();
+            return await aplicationDbContext.Users.Where(x => x.Id == userId).FirstOrDefaultAsync();
 
 
         }
